@@ -5,7 +5,7 @@ import ReactCrop, {
   PixelCrop,
   convertToPixelCrop,
 } from 'react-image-crop'
-import { canvasPreview } from '../components/canvasPreview'
+import { canvasPreview } from '../utils/canvasPreview'
 import { useDebounceEffect } from '../useDebounceEffect'
 import 'react-image-crop/dist/ReactCrop.css'
 import { centerAspectCrop, scaleCanvasToFitScreen } from '../utils';
