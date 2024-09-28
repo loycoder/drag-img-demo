@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { centerCrop, makeAspectCrop } from "react-image-crop";
 
 export function centerAspectCrop(
@@ -50,5 +51,62 @@ export function scaleCanvasToFitScreen(
   return {
     width: scaledWidth,
     height: scaledHeight,
+  };
+}
+
+/**
+ * @description 动态生成 input file
+ * @param config
+ * @returns
+ */
+export function createInputFile(config: {
+  multiple: boolean;
+  accept?: string;
+  onChange: (event: Event) => void;
+  onClick?: () => void;
+}) {
+  const { multiple = true, accept = "*", onChange, onClick = null } = config;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.multiple = multiple;
+  input.accept = accept;
+  input.style.display = "none";
+
+  input.addEventListener("change", onChange);
+  input.addEventListener("click", (event) => {
+    (event.target as any).value = null;
+    onClick?.();
+  });
+
+  document.body.appendChild(input);
+  const destroy = () => document.body.removeChild(input);
+
+  return {
+    input,
+    destroy,
+  };
+}
+
+export function createALink(config: {
+  href: string;
+  download: string;
+  onClick?: () => void;
+}) {
+  const { href, download, onClick } = config;
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = download;
+  a.style.display = "none";
+
+  a.addEventListener("click", onClick);
+  document.body.appendChild(a);
+  const destroy = () => {
+    a.removeEventListener("click", onClick);
+    document.body.removeChild(a);
+  };
+
+  return {
+    link: a,
+    destroy,
   };
 }

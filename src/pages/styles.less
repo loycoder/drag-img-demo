@@ -1,41 +1,99 @@
 .container {
   display: flex;
-  height: 100vh;
-  border: 1px solid;
+  height: 100%;
+  min-width: 1040px;
+  border: 1px solid #f0f0f0;
+  justify-content: center;
 
   .left {
-    width: 60%;
+    width: calc(58% - 5px);
     height: 100%;
     padding: 20px 0;
+    min-width: 700px;
     z-index: 3;
-    border-right: 1px solid #ccc;
-
-    .action-wrapper {
-      // border: 1px solid red;
-      width: 80%;
-    }
+    border-right: 1px solid #f0f0f0;
   }
   .right {
-    width: calc(40% - 20px);
-    padding: 20px;
+    width: 42%;
+    padding: 50px;
     position: relative;
+    margin: 0 auto;
+    .preview {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #e5e8ef;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: auto 16 / 9;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0 6px;
+    }
     canvas {
       border-radius: 8px;
       overflow: hidden;
+      border: 1px solid #e5e8ef;
     }
   }
 }
 .image-container {
   width: 100%;
   height: 100%;
-  border: 1px solid red;
+  border: 1px solid #e5e8ef;
   border-radius: 8px;
-  overflow: hidden;
+  // overflow: hidden;
   aspect-ratio: auto 16 / 9;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
-.slider {
-  //
-  border: 1px solid;
+
+.toolbar {
+  background: #fff;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px #2d71fa2a;
+
+  top: 0;
+  right: 10px;
+  display: flex;
+  margin-top: 16px;
+  padding: 6px 4px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+
+  &-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 8px;
+    cursor: pointer;
+    margin-right: 6px;
+    transition: all 0.3s;
+    &:hover {
+      border-radius: 2px;
+      background: #efefef;
+      opacity: 0.85;
+      color: rgb(22, 119, 255);
+      svg {
+        fill: rgb(63, 126, 248);
+      }
+    }
+    svg {
+      margin: -2px 4px 0;
+    }
+  }
+  .left-content {
+    display: flex;
+  }
+  .right-content {
+    display: flex;
+  }
 }
 
 .crop-controls {

@@ -1,5 +1,7 @@
 import { useRef } from "react";
 import { PixelCrop } from "react-image-crop";
+import { createALink } from "../utils";
+import { message } from "antd";
 
 export interface IUserDownloadCrop {
   completedCrop: PixelCrop;
@@ -9,15 +11,21 @@ export function useDownloadImg(props: IUserDownloadCrop) {
   const { completedCrop } = props;
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const hiddenAnchorRef = useRef<HTMLAnchorElement>(null);
   const blobUrlRef = useRef("");
 
   const onDownload = async () => {
     const image = imgRef.current;
+
     const previewCanvas = previewCanvasRef.current;
     if (!image || !previewCanvas || !completedCrop) {
-      throw new Error("Crop canvas does not exist");
+      message.error("资源下载失败，请重试");
+      return;
     }
+    // message.loading("正在下载资源，清稍后...", 0);
+    message.loading({
+      content: "正在下载资源，清稍后...",
+      key: "download",
+    });
 
     // This will size relative to the uploaded image
     // size. If you want to size according to what they
@@ -54,18 +62,24 @@ export function useDownloadImg(props: IUserDownloadCrop) {
     if (blobUrlRef.current) {
       URL.revokeObjectURL(blobUrlRef.current);
     }
-    blobUrlRef.current = URL.createObjectURL(blob);
 
-    if (hiddenAnchorRef.current) {
-      hiddenAnchorRef.current.href = blobUrlRef.current;
-      hiddenAnchorRef.current.click();
-    }
+    blobUrlRef.current = URL.createObjectURL(blob);
+    const { link, destroy } = createALink({
+      href: blobUrlRef.current,
+      download: "image.png",
+    });
+    link.click();
+    setTimeout(() => destroy(), 0);
+
+    message.success({
+      content: "图片资源下载成功",
+      key: "download",
+    });
   };
   return {
     onDownload,
     imgRef,
     previewCanvasRef,
     blobUrlRef,
-    hiddenAnchorRef,
   };
 }

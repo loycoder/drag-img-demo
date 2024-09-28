@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 import ReactCrop, {
   Crop,
@@ -9,33 +9,29 @@ import { canvasPreview } from '../utils/canvasPreview'
 import { useDebounceEffect } from '../useDebounceEffect'
 import 'react-image-crop/dist/ReactCrop.css'
 import { centerAspectCrop, scaleCanvasToFitScreen } from '../utils';
-import { Button, InputNumber } from 'antd'
 import { useDownloadImg } from '../hooks/useDownloadImg';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, HarmonyOSOutlined, RedoOutlined, UploadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import useWindowSize from '../hooks/useWindowSize'
-import './styles.less';
+import { useScale } from '../hooks/useScale'
+import { useMemoizedFn } from 'ahooks'
+import { ROTATE_ANGLE, useRotate } from '../hooks/useRotate'
+import { useTriggerClickUpload } from '../hooks/useTriggerClickUpload'
+import { Empty, message, Tooltip } from 'antd'
+import './styles.less'
 
 export default function App() {
-  const [imgSrc, setImgSrc] = useState('')
+  const [imgSrc, setImgSrc] = useState<string>(null)
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
-  const [scale, setScale] = useState(1)
-  const [rotate, setRotate] = useState(0)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
+  const { scale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
+  const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
 
-  const {
-    imgRef,
-    previewCanvasRef,
-    hiddenAnchorRef,
-    onDownload
-  } = useDownloadImg({
-    completedCrop
-  });
 
-  function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined) // Makes crop preview update between images.
+      setCrop(undefined);
       const reader = new FileReader()
       reader.addEventListener('load', () =>
         setImgSrc(reader.result?.toString() || ''),
@@ -44,12 +40,34 @@ export default function App() {
     }
   }
 
+  const { triggerUpload } = useTriggerClickUpload(onSelectFile);
+
+  const { imgRef, previewCanvasRef, onDownload } = useDownloadImg({
+    completedCrop
+  });
+
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
       const { width, height } = e.currentTarget
       setCrop(centerAspectCrop(width, height, aspect))
     }
   }
+
+
+  const handleWheel = useMemoizedFn((event: WheelEvent) => {
+    event.preventDefault(); // 阻止默认滚动行为
+    const isZoomOut = event?.deltaY > 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    isZoomOut ? onWheelZoomOut() : onWheelZoomIn();
+  });
+
+
+  useEffect(() => {
+    document.body?.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      document.body?.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel])
 
   useDebounceEffect(
     async () => {
@@ -72,19 +90,19 @@ export default function App() {
     [completedCrop, scale, rotate],
   )
 
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined)
-    } else {
-      setAspect(4 / 3)
-      if (imgRef.current) {
-        const { width, height } = imgRef.current
-        const newCrop = centerAspectCrop(width, height, 4 / 3)
-        setCrop(newCrop)
-        setCompletedCrop(convertToPixelCrop(newCrop, width, height))
+  /*   function handleToggleAspectClick() {
+      if (aspect) {
+        setAspect(undefined)
+      } else {
+        setAspect(4 / 3)
+        if (imgRef.current) {
+          const { width, height } = imgRef.current
+          const newCrop = centerAspectCrop(width, height, 4 / 3)
+          setCrop(newCrop)
+          setCompletedCrop(convertToPixelCrop(newCrop, width, height))
+        }
       }
-    }
-  }
+    } */
 
   const canvasStyle = useMemo(() => {
     if (!completedCrop) return null;
@@ -96,45 +114,16 @@ export default function App() {
     }
   }, [completedCrop, innerHeight, innerWidth])
 
-
-
   return (
     <div className="container">
       <div className='left'>
 
-        <input type="file" accept="image/*" onChange={onSelectFile} />
-        <div className='action-wrapper'>
-          <div>
-            <label htmlFor="scale-input">缩放比例: </label>
-            <input
-              id="scale-input"
-              type="number"
-              step="0.1"
-              value={scale}
-              disabled={!imgSrc}
-              onChange={(e) => setScale(Number(e.target.value))}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="rotate-input">旋转角度: </label>
-            <InputNumber
-              disabled={!imgSrc} changeOnWheel min={-180} max={180} defaultValue={0} value={rotate} onChange={value => {
-                setRotate(Math.min(180, Math.max(-180, Number(value))))
-              }} />
-          </div>
-        </div>
-
-        <div>
-          <button onClick={handleToggleAspectClick}>
-            Toggle aspect {aspect ? 'off' : 'on'}
-          </button>
-        </div>
-
-
         <div className="crop-controls">
-          <div className='image-container'>
-            {!!imgSrc && (
+          <div className='image-container' onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            !imgSrc && triggerUpload();
+          }}>
+            {imgSrc ? (
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -146,53 +135,86 @@ export default function App() {
               >
                 <img
                   ref={imgRef}
-                  alt="Crop me"
                   src={imgSrc}
                   style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
                   onLoad={onImageLoad}
                 />
               </ReactCrop>
-            )}
+            ) : <Empty description='点击上传素材图片' />}
+
           </div>
-          <Button type="primary" shape="round" icon={<DownloadOutlined />} size='middle' onClick={onDownload} >重新选择文件</Button>
-          <Button type="primary" shape="round" icon={<DownloadOutlined />} size='middle' >下载</Button>
+
+          <div className="toolbar">
+            <div className='left-content'>
+              <Tooltip title="图片素材建议尺寸:1920*1080">
+                <div className="toolbar-item" onClick={triggerUpload}>
+                  <UploadOutlined />
+                  <span className="toolbar-text">重新选择文件</span>
+                </div>
+              </Tooltip>
+
+              <div className="toolbar-item" onClick={() => {
+                if (!imgSrc) return message.error('请先上传素材图片');
+                onDownload();
+              }}>
+                <DownloadOutlined
+                />
+                <span className="toolbar-text">下载</span>
+              </div>
+
+            </div>
+            <div className='right-content'>
+
+              <div onClick={() => {
+                resetZoomScale();
+                resetRotate();
+                setAspect(4 / 3);
+              }} className="toolbar-item">
+                <HarmonyOSOutlined />
+                <span className="toolbar-text">重置状态</span>
+              </div>
+
+              <div onClick={onZoomIn} className="toolbar-item">
+                <ZoomInOutlined />
+                <span className="toolbar-text">放大</span>
+              </div>
+
+              <div onClick={onZoomOut} className="toolbar-item">
+                <ZoomOutOutlined />
+                <span className="toolbar-text">缩小</span>
+              </div>
+
+              <div className="toolbar-item" onClick={() => {
+                onRotate(ROTATE_ANGLE);
+              }}>
+                <RedoOutlined />
+                <span className="toolbar-text">顺时针旋转</span>
+              </div>
+
+              <div className="toolbar-item" onClick={() => {
+                onRotate(-ROTATE_ANGLE);
+              }}>
+                <RedoOutlined style={{ transform: 'rotate(-180deg)' }} />
+                <span className="toolbar-text">逆时针旋转</span>
+              </div>
+            </div>
+          </div>
         </div>
-
-
-
       </div>
 
       <div className='right'>
-        {!!completedCrop && (
-          <>
-            <div>
-              <canvas
-                ref={previewCanvasRef}
-                style={{
-                  objectFit: 'contain',
-                  ...canvasStyle,
-                }}
-              />
-            </div>
-            <div>
-
-              <a
-                href="#hidden"
-                ref={hiddenAnchorRef}
-                download
-                style={{
-                  position: 'absolute',
-                  top: '-200vh',
-                  visibility: 'hidden',
-                }}
-              >
-                Hidden download
-              </a>
-            </div>
-          </>
-        )}
+        <div className='preview'>
+          {!!completedCrop && (
+            <canvas
+              ref={previewCanvasRef}
+              style={{
+                objectFit: 'contain',
+                ...canvasStyle,
+              }}
+            />
+          )}
+        </div>
       </div>
-
     </div>
   )
 }
