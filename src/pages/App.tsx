@@ -17,7 +17,7 @@ import { ROTATE_ANGLE, useRotate } from '../hooks/useRotate'
 import { useTriggerClickUpload } from '../hooks/useTriggerClickUpload'
 import { Button, Empty, message, Tooltip } from 'antd'
 import { isEmpty } from 'lodash-es'
-import empty from '../assets/3333.png'
+import empty from '../assets/empty.png'
 import './styles.less'
 
 export default function App() {
