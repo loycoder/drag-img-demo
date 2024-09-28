@@ -3,7 +3,6 @@ import React, { useState, useMemo, useEffect } from 'react'
 import ReactCrop, {
   Crop,
   PixelCrop,
-  convertToPixelCrop,
 } from 'react-image-crop'
 import { canvasPreview } from '../utils/canvasPreview'
 import { useDebounceEffect } from '../useDebounceEffect'
@@ -16,7 +15,9 @@ import { useScale } from '../hooks/useScale'
 import { useMemoizedFn } from 'ahooks'
 import { ROTATE_ANGLE, useRotate } from '../hooks/useRotate'
 import { useTriggerClickUpload } from '../hooks/useTriggerClickUpload'
-import { Empty, message, Tooltip } from 'antd'
+import { Button, Empty, message, Tooltip } from 'antd'
+import { isEmpty } from 'lodash-es'
+import empty from '../assets/3333.png'
 import './styles.less'
 
 export default function App() {
@@ -117,12 +118,8 @@ export default function App() {
   return (
     <div className="container">
       <div className='left'>
-
         <div className="crop-controls">
-          <div className='image-container' onClick={() => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            !imgSrc && triggerUpload();
-          }}>
+          <div className='image-container'>
             {imgSrc ? (
               <ReactCrop
                 crop={crop}
@@ -140,7 +137,9 @@ export default function App() {
                   onLoad={onImageLoad}
                 />
               </ReactCrop>
-            ) : <Empty description='点击上传素材图片' />}
+            ) : <Empty description={
+              <Button style={{ marginTop: 120 }} type='primary' onClick={triggerUpload}>点击上传图片素材</Button>
+            } image={<img src={empty} style={{ height: 220 }} />} />}
 
           </div>
 
@@ -204,7 +203,7 @@ export default function App() {
 
       <div className='right'>
         <div className='preview'>
-          {!!completedCrop && (
+          {isEmpty(completedCrop) ? <Empty description='上传素材后可预览' /> : (
             <canvas
               ref={previewCanvasRef}
               style={{
