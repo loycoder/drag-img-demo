@@ -25,6 +25,7 @@ export default function App() {
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
+  const [open, setOpen] = useState(false);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
@@ -42,7 +43,7 @@ export default function App() {
 
   const { triggerUpload } = useTriggerClickUpload(onSelectFile);
 
-  const { imgRef, previewCanvasRef, onDownload } = useDownloadImg({
+  const { imgRef, previewCanvasRef, getBase64, onDownload } = useDownloadImg({
     completedCrop
   });
 
@@ -53,7 +54,6 @@ export default function App() {
     }
   }
 
-
   const handleWheel = useMemoizedFn((event: WheelEvent) => {
     event.preventDefault(); // 阻止默认滚动行为
     const isZoomOut = event?.deltaY > 0;
@@ -61,6 +61,22 @@ export default function App() {
     isZoomOut ? onWheelZoomOut() : onWheelZoomIn();
   });
 
+  const rejectApi = {
+    openCropModal: () => {
+      setOpen(true);
+    },
+    closeCropModal: () => {
+      setOpen(false);
+    },
+    getBase64Image: useMemoizedFn((cb) => {
+      if (!imgSrc) {
+        console.error('no image source');
+        return '';
+      }
+      return getBase64(cb)
+    })
+  }
+  window.rejectApi = rejectApi;
   useEffect(() => {
     document.body?.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
@@ -89,20 +105,6 @@ export default function App() {
     [completedCrop, scale, rotate],
   )
 
-  /*   function handleToggleAspectClick() {
-      if (aspect) {
-        setAspect(undefined)
-      } else {
-        setAspect(4 / 3)
-        if (imgRef.current) {
-          const { width, height } = imgRef.current
-          const newCrop = centerAspectCrop(width, height, 4 / 3)
-          setCrop(newCrop)
-          setCompletedCrop(convertToPixelCrop(newCrop, width, height))
-        }
-      }
-    } */
-
   const canvasStyle = useMemo(() => {
     if (!completedCrop) return null;
     const size = scaleCanvasToFitScreen(completedCrop.width, completedCrop.height);
@@ -115,11 +117,11 @@ export default function App() {
 
 
   const handleOk = () => {
-
+    setOpen(false);
   }
 
   const handleCancel = () => {
-
+    setOpen(false);
   }
 
   const reset = () => {
@@ -131,6 +133,7 @@ export default function App() {
   return (
     <Modal
       cancelText='取消'
+      open={open}
       cancelButtonProps={{
         size: 'large',
       }}
@@ -140,7 +143,7 @@ export default function App() {
       okText='确定'
       width={innerWidth * 0.8} style={{
         overflow: 'auto',
-      }} title="图片编辑" open={true} onOk={handleOk} onCancel={handleCancel}>
+      }} title="图片编辑" onOk={handleOk} onCancel={handleCancel}>
 
       <div>
         <div className='tips'>
@@ -243,6 +246,7 @@ export default function App() {
             </div>
           </div>
         </div>
+        <canvas width="1920" id='download_canvas' style={{ opacity: 0, display: 'none' }} height="1440" />
       </div>
     </Modal>
 

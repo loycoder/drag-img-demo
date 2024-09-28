@@ -7,6 +7,20 @@ export interface IUserDownloadCrop {
   completedCrop: PixelCrop;
 }
 
+export function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result as string;
+      resolve(base64data);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
 /**
  * 将一个 image 绘制到 canvas 上
  * @param srcCanvas
@@ -104,26 +118,11 @@ export function useDownloadImg(props: IUserDownloadCrop) {
   const imgRef = useRef<HTMLImageElement>(null);
   const blobUrlRef = useRef("");
 
-  const onDownload = async () => {
+  const getCanvasBlob = async () => {
     const image = imgRef.current;
-
     const previewCanvas = previewCanvasRef.current;
-    if (!image || !previewCanvas || !completedCrop) {
-      message.error("资源下载失败，请重试");
-      return;
-    }
-    // message.loading("正在下载资源，清稍后...", 0);
-    message.loading({
-      content: "正在下载资源，清稍后...",
-      key: "download",
-    });
-
-    // This will size relative to the uploaded image
-    // size. If you want to size according to what they
-    // are looking at on screen, remove scaleX + scaleY
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-
     const offscreen = new OffscreenCanvas(
       completedCrop.width * scaleX,
       completedCrop.height * scaleY
@@ -145,9 +144,6 @@ export function useDownloadImg(props: IUserDownloadCrop) {
       offscreen.height
     );
 
-    // drawCanvasToCanvas(offscreen);
-    // You might want { type: "image/jpeg", quality: <0 to 1> } to
-    // reduce image size
     let blob = await offscreen.convertToBlob({
       type: "image/png",
     });
@@ -157,11 +153,26 @@ export function useDownloadImg(props: IUserDownloadCrop) {
       document.getElementById("download_canvas") as HTMLCanvasElement;
     drawCanvas(sourceImage, getCanvasElement());
     blob = await canvasToBlob(getCanvasElement());
+    return blob;
+  };
 
+  const onDownload = async () => {
+    const image = imgRef.current;
+
+    const previewCanvas = previewCanvasRef.current;
+    if (!image || !previewCanvas || !completedCrop) {
+      message.error("资源下载失败，请重试");
+      return;
+    }
+    message.loading({
+      content: "正在下载资源，清稍后...",
+      key: "download",
+    });
+
+    const blob = await getCanvasBlob();
     if (blobUrlRef.current) {
       URL.revokeObjectURL(blobUrlRef.current);
     }
-
     blobUrlRef.current = URL.createObjectURL(blob);
     const { link, destroy } = createALink({
       href: blobUrlRef.current,
@@ -179,5 +190,14 @@ export function useDownloadImg(props: IUserDownloadCrop) {
     onDownload,
     imgRef,
     previewCanvasRef,
+    getBase64: (cb) => {
+      getCanvasBlob()
+        .then(blobToBase64)
+        .then(cb)
+        .catch((error) => {
+          console.error("getBase64 error", error);
+          cb(null);
+        });
+    },
   };
 }
