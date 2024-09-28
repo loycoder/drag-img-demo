@@ -25,7 +25,7 @@ export default function App() {
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
@@ -149,7 +149,7 @@ export default function App() {
         <div className='tips'>
           <InfoCircleOutlined /> 操作说明：请将产品最大化的呈现在裁剪框内，滚动鼠标滚轮放大或缩小产品图
         </div>
-        <div className="container">
+        <div className="react-image-crop-container">
 
           <div className='left'>
             <div className="crop-controls">

@@ -1,4 +1,4 @@
-.container {
+.react-image-crop-container {
   display: flex;
   height: 100%;
   min-width: 1040px;
@@ -42,107 +42,108 @@
       overflow: hidden;
     }
   }
-}
-.image-container {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #e5e8ef;
-  border-radius: 8px;
-  // overflow: hidden;
-  aspect-ratio: auto 16 / 9;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
 
-.toolbar {
-  background: #fff;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 10px #2d71fa2a;
-
-  top: 0;
-  right: 10px;
-  display: flex;
-  margin-top: 16px;
-  padding: 6px 4px;
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-
-  &-item {
+  .image-container {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #e5e8ef;
+    border-radius: 8px;
+    // overflow: hidden;
+    aspect-ratio: auto 16 / 9;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 8px;
     cursor: pointer;
-    margin-right: 6px;
-    transition: all 0.3s;
-    &:hover {
-      border-radius: 2px;
-      background: #efefef;
-      opacity: 0.85;
-      color: rgb(22, 119, 255);
+  }
+
+  .toolbar {
+    background: #fff;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 10px #2d71fa2a;
+
+    top: 0;
+    right: 10px;
+    display: flex;
+    margin-top: 16px;
+    padding: 6px 4px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+
+    &-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 8px;
+      cursor: pointer;
+      margin-right: 6px;
+      transition: all 0.3s;
+      &:hover {
+        border-radius: 2px;
+        background: #efefef;
+        opacity: 0.85;
+        color: rgb(22, 119, 255);
+        svg {
+          fill: rgb(63, 126, 248);
+        }
+      }
       svg {
-        fill: rgb(63, 126, 248);
+        margin: -2px 4px 0;
       }
     }
+    .left-content {
+      display: flex;
+    }
+    .right-content {
+      display: flex;
+    }
+  }
+  .tips {
+    list-style: 30px;
+    padding: 10px 0;
     svg {
-      margin: -2px 4px 0;
+      margin-right: 2px;
     }
   }
-  .left-content {
-    display: flex;
-  }
-  .right-content {
-    display: flex;
-  }
-}
-.tips {
-  list-style: 30px;
-  padding: 10px 0;
-  svg {
-    margin-right: 2px;
-  }
-}
 
-.crop-controls {
-  padding: 0 20px;
-  position: relative;
-  .ReactCrop {
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .ReactCrop__crop-selection {
-    background: none !important;
-    border: 2px solid rgb(22, 119, 255);
-    animation: none !important;
-  }
-
-  .ReactCrop__drag-handle {
-    //
-    width: 32px;
-    height: 32px;
-    transform: translate(0, 0);
-    border: none;
-
-    &.ord-nw {
-      background: url("../assets/top_left.svg") no-repeat top left;
-      background-size: 65%;
+  .crop-controls {
+    padding: 0 20px;
+    position: relative;
+    .ReactCrop {
+      height: 100%;
+      overflow: hidden;
     }
-    &.ord-ne {
-      background: url("../assets/top_right.svg") no-repeat top right;
-      background-size: 65%;
+
+    .ReactCrop__crop-selection {
+      background: none !important;
+      border: 2px solid rgb(22, 119, 255);
+      animation: none !important;
     }
-    &.ord-sw {
-      background: url("../assets/bottom_left.svg") no-repeat bottom left;
-      background-size: 65%;
-    }
-    &.ord-se {
-      background: url("../assets/bottom_right.svg") no-repeat bottom right;
-      background-size: 65%;
+
+    .ReactCrop__drag-handle {
+      //
+      width: 32px;
+      height: 32px;
+      transform: translate(0, 0);
+      border: none;
+
+      &.ord-nw {
+        background: url("../assets/top_left.svg") no-repeat top left;
+        background-size: 65%;
+      }
+      &.ord-ne {
+        background: url("../assets/top_right.svg") no-repeat top right;
+        background-size: 65%;
+      }
+      &.ord-sw {
+        background: url("../assets/bottom_left.svg") no-repeat bottom left;
+        background-size: 65%;
+      }
+      &.ord-se {
+        background: url("../assets/bottom_right.svg") no-repeat bottom right;
+        background-size: 65%;
+      }
     }
   }
 }
