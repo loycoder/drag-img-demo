@@ -176,20 +176,20 @@ export default function App() {
 
   const _isEmptyCompletedCrop = isEmpty(completedCrop);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const alignItems = () => {
-    if (_isEmptyCompletedCrop) {
-      return 'center'
-    }
 
-    if (imgRef.current.naturalWidth / imgRef.current.naturalHeight === 4 / 3) {
+  /*   const alignItems = () => {
+      if (_isEmptyCompletedCrop) {
+        return 'center'
+      }
+  
+      if (imgRef.current.naturalWidth / imgRef.current.naturalHeight === 4 / 3) {
+        return 'flex-start'
+      }
+      if ((imgRef.current.naturalWidth >= imgRef.current.naturalHeight)) {
+        return 'center'
+      }
       return 'flex-start'
-    }
-    if ((imgRef.current.naturalWidth >= imgRef.current.naturalHeight)) {
-      return 'center'
-    }
-    return 'flex-start'
-  }
+    } */
 
   return (
     <Modal
