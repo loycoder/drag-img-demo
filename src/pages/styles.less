@@ -25,9 +25,12 @@
       overflow: hidden;
       aspect-ratio: auto 16 / 9;
       position: relative;
-      display: flex;
       cursor: pointer;
       padding: 0 6px;
+      border: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &-empty {
         display: flex;
@@ -48,9 +51,9 @@
     height: 100%;
     border: 1px solid #e5e8ef;
     border-radius: 8px;
-    // overflow: hidden;
-    aspect-ratio: auto 16 / 9;
+    height: 480px;
     position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,9 +64,9 @@
     background: #fff;
     backdrop-filter: blur(8px);
     box-shadow: 0 0 10px #2d71fa2a;
-
-    top: 0;
-    right: 10px;
+    margin: 0 20px;
+    // top: 0;
+    // right: 10px;
     display: flex;
     margin-top: 16px;
     padding: 6px 4px;
@@ -110,11 +113,6 @@
   .crop-controls {
     padding: 0 20px;
     position: relative;
-    .ReactCrop {
-      height: 100%;
-      overflow: hidden;
-    }
-
     .ReactCrop__crop-selection {
       background: none !important;
       border: 2px solid rgb(22, 119, 255);

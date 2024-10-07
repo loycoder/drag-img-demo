@@ -30,7 +30,7 @@ export function scaleCanvasToFitScreen(
   canvasWidth: number,
   canvasHeight: number
 ): CanvasSize {
-  const screenWidth = window.innerWidth * 0.38;
+  const screenWidth = window.innerWidth; //* 0.38;
   const screenHeight = window.innerHeight;
   const screenAspectRatio = screenWidth / screenHeight;
   const canvasAspectRatio = canvasWidth / canvasHeight;
