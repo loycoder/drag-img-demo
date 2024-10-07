@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 
 import ReactCrop, {
@@ -62,7 +63,7 @@ export default function App() {
   const handleWheel = useMemoizedFn((event: WheelEvent) => {
     event.preventDefault(); // 阻止默认滚动行为
     const isZoomOut = event?.deltaY > 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+
     isZoomOut ? onWheelZoomOut() : onWheelZoomIn();
   });
 
@@ -147,11 +148,24 @@ export default function App() {
 
 
   const handleOk = () => {
-    setOpen(false);
+    if (!imgRef.current) {
+      return message.error('请先上传素材图片');
+    }
+    if (!window.onCropModalConfirm) {
+      throw new Error('window.onCropModalConfirm is not defined');
+    }
+    getBase64((base64) => {
+      const flag = window.onCropModalConfirm(base64);
+      flag && setOpen(false);
+    })
   }
 
   const handleCancel = () => {
-    setOpen(false);
+    if (!window.onCropModalCancel) {
+      throw new Error('window.onCropModalCancel is not defined');
+    }
+    const flag = window.onCropModalCancel();
+    flag && setOpen(false);
   }
 
   const reset = () => {
