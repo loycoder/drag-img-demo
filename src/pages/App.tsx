@@ -27,7 +27,7 @@ export default function App() {
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, setScale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
@@ -84,9 +84,10 @@ export default function App() {
   }
   window.rejectApi = rejectApi;
   useEffect(() => {
-    document.body?.addEventListener('wheel', handleWheel, { passive: false });
+    editContainerRef.current?.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      document.body?.removeEventListener('wheel', handleWheel);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      editContainerRef.current?.removeEventListener('wheel', handleWheel);
     };
   }, [handleWheel])
 
