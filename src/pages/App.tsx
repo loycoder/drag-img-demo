@@ -16,18 +16,18 @@ import { useScale } from '../hooks/useScale'
 import { useMemoizedFn } from 'ahooks'
 import { ROTATE_ANGLE, useRotate } from '../hooks/useRotate'
 import { useTriggerClickUpload } from '../hooks/useTriggerClickUpload'
-import { Button, Empty, message, Modal, Tooltip } from 'antd'
+import { Button, Empty, message, Modal, Tooltip } from 'antd';
+import { unstable_batchedUpdates } from 'react-dom';
 import { isEmpty } from 'lodash-es'
 import empty from '../assets/empty.png'
 import './styles.less'
-import { unstable_batchedUpdates } from 'react-dom'
 
 export default function App() {
   const [imgSrc, setImgSrc] = useState<string>(null)
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, setScale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
@@ -61,6 +61,9 @@ export default function App() {
   }
 
   const handleWheel = useMemoizedFn((event: WheelEvent) => {
+    if(!imgSrc || !open) {
+      return
+    }
     event.preventDefault(); // 阻止默认滚动行为
     const isZoomOut = event?.deltaY > 0;
 
@@ -69,7 +72,16 @@ export default function App() {
 
   const rejectApi = {
     openCropModal: () => {
-      setOpen(true);
+      unstable_batchedUpdates(() => {
+        setIsInit(true);
+        setImgSrc(null);
+        setCrop(null);
+        setCompletedCrop(null);
+        setScale(1);
+        setAspect(4 / 3);
+        resetRotate();
+        setOpen(true);
+      })
     },
     closeCropModal: () => {
       setOpen(false);
@@ -84,10 +96,10 @@ export default function App() {
   }
   window.rejectApi = rejectApi;
   useEffect(() => {
-    editContainerRef.current?.addEventListener('wheel', handleWheel, { passive: false });
+    document.body?.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      editContainerRef.current?.removeEventListener('wheel', handleWheel);
+       
+      document.body?.removeEventListener('wheel', handleWheel);
     };
   }, [handleWheel])
 
@@ -98,8 +110,6 @@ export default function App() {
       imgRef.current &&
       previewCanvasRef.current
     ) {
-
-
       canvasPreview(
         imgRef.current,
         previewCanvasRef.current,
@@ -107,7 +117,6 @@ export default function App() {
         scale,
         rotate,
       )
-      // return;
       setTimeout(() => {
         if (!isInit) {
           return
@@ -236,15 +245,20 @@ export default function App() {
                       onLoad={onImageLoad}
                     />
                   </ReactCrop>
-                ) : <Empty description={
-                  <Button style={{ marginTop: 120 }} type='primary' onClick={triggerUpload}>点击上传图片素材</Button>
+                ) :
+                <Empty
+                description={
+                  <div style={{ marginTop: 120 }}>
+                  <p>图片像素建议不小于1920*1080</p>
+                  <Button  style={{ marginTop: 20 }} type='primary' onClick={triggerUpload}>点击上传图片素材</Button>
+                  </div>
                 } image={<img src={empty} style={{ height: 220 }} />} />}
 
               </div>
             </div>
             <div className="toolbar">
               <div className='left-content'>
-                <Tooltip title="图片素材建议尺寸:1920*1080">
+                <Tooltip title="图片像素建议不小于1920*1080">
                   <div className="toolbar-item" onClick={() => {
                     unstable_batchedUpdates(() => {
                       setIsInit(true);

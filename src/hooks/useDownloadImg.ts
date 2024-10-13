@@ -23,57 +23,41 @@ export function blobToBase64(blob: Blob): Promise<string> {
 
 /**
  * 将一个 image 绘制到 canvas 上
- * @param srcCanvas
+ * @param srcImage
  * @param destCanvas
  */
 export function drawCanvas(
-  srcImage: HTMLImageElement,
-  destCanvas: HTMLCanvasElement
+ srcImage: HTMLImageElement,
+ destCanvas: HTMLCanvasElement
 ) {
-  const destCtx = destCanvas.getContext("2d");
+ const destCtx = destCanvas.getContext("2d");
 
-  // 获取源 canvas 的宽度和高度
-  let srcWidth = srcImage.width;
-  let srcHeight = srcImage.height;
+ // 获取源 image 的宽度和高度
+ const srcWidth = srcImage.width;
+ const srcHeight = srcImage.height;
 
-  // 获取目标 canvas 的宽度和高度
-  const destWidth = destCanvas.width;
-  const destHeight = destCanvas.height;
+ // 获取目标 canvas 的宽度和高度
+ const destWidth = destCanvas.width;
+ const destHeight = destCanvas.height;
 
-  // 计算缩放比例
-  const scaleX = destWidth / srcWidth;
-  const scaleY = destHeight / srcHeight;
-  const scale = Math.min(scaleX, scaleY);
+ // 计算缩放比例
+ const scaleX = destWidth / srcWidth;
+ const scaleY = destHeight / srcHeight;
+ const scale = Math.max(scaleX, scaleY);
 
-  // 如果源 canvas 大于目标 canvas，则缩小源 canvas
-  if (srcWidth > destWidth || srcHeight > destHeight) {
-    srcWidth = srcWidth * scale;
-    srcHeight = srcHeight * scale;
-  }
+ // 计算绘制图像的尺寸
+ const drawWidth = srcWidth * scale;
+ const drawHeight = srcHeight * scale;
 
-  // 计算居中位置
-  const x = (destWidth - srcWidth) / 2;
-  const y = (destHeight - srcHeight) / 2;
+ // 计算绘制图像的起始位置，使其居中
+ const offsetX = (destWidth - drawWidth) / 2;
+ const offsetY = (destHeight - drawHeight) / 2;
 
-  // 清除目标 canvas
-  destCtx.clearRect(0, 0, destWidth, destHeight);
+ // 清空画布
+ destCtx.clearRect(0, 0, destWidth, destHeight);
 
-  // 绘制源 canvas 到目标 canvas
-  if (srcWidth > destWidth || srcHeight > destHeight) {
-    destCtx.drawImage(
-      srcImage,
-      0,
-      0,
-      srcImage.width,
-      srcImage.height,
-      x,
-      y,
-      srcWidth,
-      srcHeight
-    );
-  } else {
-    destCtx.drawImage(srcImage, x, y, srcWidth, srcHeight);
-  }
+ // 绘制图像
+ destCtx.drawImage(srcImage, 0, 0, srcWidth, srcHeight, offsetX, offsetY, drawWidth, drawHeight);
 }
 
 function canvasToBlob(
