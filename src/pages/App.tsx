@@ -18,7 +18,7 @@ import { ROTATE_ANGLE, useRotate } from '../hooks/useRotate'
 import { useTriggerClickUpload } from '../hooks/useTriggerClickUpload'
 import { Button, Empty, message, Modal, Tooltip } from 'antd';
 import { unstable_batchedUpdates } from 'react-dom';
-import { isEmpty } from 'lodash-es'
+import { isEmpty } from 'lodash-es';
 import empty from '../assets/empty.png'
 import './styles.less'
 
@@ -247,13 +247,18 @@ export default function App() {
                     />
                   </ReactCrop>
                 ) :
-                  <Empty
-                    description={
-                      <div style={{ marginTop: '30%' }}>
-                        <p>图片像素建议不小于1920*1080</p>
-                        <Button style={{ marginTop: 20 }} type='primary' onClick={triggerUpload}>点击上传图片素材</Button>
-                      </div>
-                    } image={<img src={empty} style={{ height: previewHeight * 0.5 }} />} />}
+
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: previewHeight - 20,
+                  }}>
+                    <img src={empty} style={{ height: '57%' }} />
+                    <Button style={{ marginTop: 20 }} type='primary' onClick={triggerUpload}>点击上传图片素材</Button>
+                  </div>
+                }
 
               </div>
             </div>
