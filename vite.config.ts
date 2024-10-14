@@ -26,4 +26,8 @@ export default defineConfig({
       },
     },
   },
+  build: {
+   outDir: 'docs',
+   assetsDir: 'assets', // 资源目录
+  }
 })
