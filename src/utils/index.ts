@@ -26,6 +26,30 @@ interface CanvasSize {
   height: number;
 }
 
+// 动态创建 style
+export function createStyle(styleId: string, styleText: string, isOverwrite = true) {
+ const destroy = () => {
+   const dom = document.getElementById(styleId);
+   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+   dom && dom?.parentNode?.removeChild(dom);
+ };
+ let style = document.createElement('style');
+ console.log('style: ', style);
+
+ if (isOverwrite && styleId) {
+  const  _dom  = document.getElementById(styleId) as HTMLStyleElement;
+  if (_dom) {
+   style = _dom;
+  }
+ }
+ style.setAttribute('id', styleId);
+ style.type = 'text/css';
+ const sHtml = styleText;
+ style.innerHTML = sHtml;
+ document.getElementsByTagName('head').item(0).appendChild(style);
+ return () => destroy();
+}
+
 export function scaleCanvasToFitScreen(
   canvasWidth: number,
   canvasHeight: number
