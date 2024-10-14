@@ -240,7 +240,7 @@ export default function App() {
                       src={imgSrc}
                       style={{
                         transform: `scale(${scale}) rotate(${rotate}deg)`,
-                        height: !isImgWidthLarger ? (previewHeight - 30) * 4 / 3 - 5 : 'unset'
+                        height: !isImgWidthLarger ? previewHeight : 'unset'
                       }
                       }
                       onLoad={onImageLoad}
