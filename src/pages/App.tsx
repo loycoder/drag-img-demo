@@ -205,8 +205,10 @@ export default function App() {
       }} title="图片编辑" onOk={handleOk} onCancel={handleCancel}>
 
       <div>
-        <div className='tips'>
-          <InfoCircleOutlined /> 操作说明：请将产品最大化的呈现在裁剪框内，滚动鼠标滚轮放大或缩小产品图
+        <div className='react-image-crop-container-tips'>
+          <InfoCircleOutlined /> 请将产品最大化的呈现在红色裁剪框内，鼠标左键可移动及缩放裁剪框，
+          滚动鼠标滚轮放大或缩小产品图
+
         </div>
         <div className="react-image-crop-container" style={{
           height: containerHeight,
