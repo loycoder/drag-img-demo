@@ -197,7 +197,7 @@ export default function App() {
         size: 'large',
       }}
       okText='确定'
-      width={innerWidth * 0.8}
+      width={innerWidth * 0.85}
       style={{
         overflow: 'auto',
         top: 20,
@@ -206,7 +206,7 @@ export default function App() {
 
       <div>
         <div className='react-image-crop-container-tips'>
-          <InfoCircleOutlined /> 请将产品最大化的呈现在红色裁剪框内，鼠标左键可移动及缩放裁剪框，
+          <InfoCircleOutlined /> 请将产品最大化的呈现在蓝色裁剪框内，鼠标左键可移动及缩放裁剪框，
           滚动鼠标滚轮放大或缩小产品图
 
         </div>
@@ -270,6 +270,7 @@ export default function App() {
           <div className='right'>
             <div className='preview' ref={previewContainerRef} style={{
               height: _isEmptyCompletedCrop ? '100%' : previewHeight,
+              width: _isEmptyCompletedCrop ? '100%' : previewHeight * 4 / 3,
               // alignItems: alignItems(),
             }}>
               {_isEmptyCompletedCrop ? <div className='preview-empty'> <Empty description='上传素材后可预览' /></div> : (
