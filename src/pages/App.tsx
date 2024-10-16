@@ -27,7 +27,7 @@ export default function App() {
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, setScale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
