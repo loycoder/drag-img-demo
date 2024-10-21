@@ -27,7 +27,7 @@ export default function App() {
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>(null)
   const [aspect, setAspect] = useState<number | undefined>(4 / 3);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const { width: innerWidth, height: innerHeight } = useWindowSize();
   const { scale, setScale, onZoomIn, onWheelZoomOut, onWheelZoomIn, onZoomOut, resetZoomScale } = useScale(1, { min: 0.2, max: 5, step: 0.2 });
   const { onRotate, rotateZ: rotate, resetRotate } = useRotate(0);
@@ -38,7 +38,13 @@ export default function App() {
   const modalHeight = _modalHeight < 440 ? 440 : _modalHeight;
   const containerHeight = modalHeight * 0.68;
   const previewHeight = containerHeight - 40;
-  const [isImgWidthLarger, setIsImgWidthLarger] = useState(false);
+  const [imageSize, setImageSize] = useState<{
+    width?: number | string;
+    height?: number | string;
+  }>({
+    width: '100%',
+    height: previewHeight
+  });
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -47,7 +53,43 @@ export default function App() {
       reader.addEventListener('load', () =>
         setImgSrc(reader.result?.toString() || ''),
       )
-      reader.readAsDataURL(e.target.files[0])
+      reader.readAsDataURL(e.target.files[0]);
+
+      // 读取image的宽高
+      const imageObj = new Image();
+      imageObj.src = URL.createObjectURL(e.target.files[0]);
+      imageObj.onload = () => {
+        // 判断图片的缩放比例，缩放到多少, 宽高完全显示在容器内
+        const img = imageObj;
+        const imgHeight = img.naturalHeight;
+        const imgWidth = img.naturalWidth;
+        const _previewHeight = previewHeight;
+        const _previewWidth = _previewHeight * 4 / 3;
+
+        if (imgHeight < _previewHeight && imgWidth < _previewWidth) {
+          setImageSize({
+            width: imgWidth,
+            height: imgHeight,
+          })
+          return
+        }
+
+        // 如果图片宽度大于高度，则以宽度为基准，按照4:3的比例缩放， 否则以高度为基准
+        if (imgWidth > imgHeight) {
+          const scale = _previewWidth / imgWidth;
+          setImageSize({
+            width: imgWidth * scale,
+            height: imgHeight * scale,
+          })
+
+        } else {
+          const scale = _previewHeight / imgHeight;
+          setImageSize({
+            width: imgWidth * scale,
+            height: imgHeight * scale,
+          })
+        }
+      }
     }
   }
 
@@ -127,12 +169,7 @@ export default function App() {
         if (!isInit) {
           return
         }
-        // 判断图片的缩放比例，缩放到多少, 宽高完全显示在容器内
-        const img = imgRef.current;
-        const imgHeight = img.naturalHeight;
-        const imgWidth = img.naturalWidth;
 
-        setIsImgWidthLarger(imgWidth > imgHeight);
         setIsInit(false);
       }, 0);
     }
@@ -229,6 +266,7 @@ export default function App() {
                     crop={crop}
                     style={{
                       opacity: isInit ? 0 : 1,
+                      // ...imageSize,
                     }}
                     onChange={(_, percentCrop) => setCrop(percentCrop)}
                     onComplete={(c) => setCompletedCrop(c)}
@@ -242,7 +280,7 @@ export default function App() {
                       src={imgSrc}
                       style={{
                         transform: `scale(${scale}) rotate(${rotate}deg)`,
-                        height: !isImgWidthLarger ? previewHeight : 'unset'
+                        ...imageSize,
                       }
                       }
                       onLoad={onImageLoad}
@@ -293,6 +331,7 @@ export default function App() {
                 unstable_batchedUpdates(() => {
                   setIsInit(true);
                   setImgSrc(null);
+                  setImageSize({});
                   setCrop(null);
                   setCompletedCrop(null);
                   setScale(1);
